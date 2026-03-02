@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
@@ -6,25 +7,31 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Hole
-{
-    private Image _holeView;
+public class Hole : IDisposable
+{    
+    private IDisposable _disposed;
 
     public Hole(UIMainWindow window, CubeView.Pool pool)
     {
-        _holeView = window.Hole;
-        _holeView.alphaHitTestMinimumThreshold = 1.0f;
+        var holeView = window.Hole;
+        holeView.alphaHitTestMinimumThreshold = 1.0f;
 
-        _holeView
+        _disposed = holeView
             .OnDropAsObservable()
             .Subscribe(pointerData => 
-            {                
-                //TODO: animation
+            {                                
                 var cube = pointerData.pointerDrag.GetComponent<CubeView>();
                 if (cube != null)
                 {
+                    ExecuteEvents.Execute(cube.gameObject, pointerData, ExecuteEvents.endDragHandler);
                     pool.Despawn(cube);
                 }
             });
+    }
+
+    public void Dispose()
+    {
+        _disposed.Dispose();
+        _disposed = null;
     }
 }

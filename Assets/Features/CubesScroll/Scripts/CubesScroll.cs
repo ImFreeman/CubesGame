@@ -103,10 +103,12 @@ public class CubesScroll : IDisposable
                 currentDraggable
                     .OnEndDragAsObservable()                                                
                     .Take(1)
-                    .Where(pointerData => true)//pointerData.pointerEnter == null || pointerData.pointerEnter.GetComponent<IDropHandler>() == null)
                     .Subscribe(pointerData => 
                     {
-                        _pool.Despawn(currentDraggable);
+                        if(pointerData.pointerEnter == null || pointerData.pointerEnter.GetComponent<IDropHandler>() == null)
+                        {
+                            _pool.Despawn(currentDraggable);
+                        }                        
                     });
             }
         }
