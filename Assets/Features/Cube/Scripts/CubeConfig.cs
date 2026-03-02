@@ -5,8 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "CubesConfig", menuName = "ScriptableObjects/CubesConfig", order = 1)]
 public class CubeConfig : ScriptableObject
 {
-    [SerializeField] private CubeModel[] _cubeModels;
+    public string[] CubesToShow => _cubesToShow;
 
+    [SerializeField] private string[] _cubesToShow;
+    [SerializeField] private CubeModel[] _cubeModels;
+    
     [NonSerialized] private bool _inited;
 
     private Dictionary<string, CubeModel> _cubeModelsDict = new Dictionary<string, CubeModel>();

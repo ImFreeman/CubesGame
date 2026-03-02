@@ -6,3 +6,8 @@ public interface ICommand<T> : IDisposable
 {
     public (CommandStatus, T) Do();
 }
+
+public class CommandReturnValue
+{
+    public static CommandReturnValue Empty;
+}

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Assets.Features.Cube.Scripts
+﻿namespace Assets.Features.Cube.Scripts
 {
     public enum CubesContainerType
     {
-        Scroll,
-        Tower
+        DragAndDrop = 0,
+        Scroll = 1,
+        Tower = 2,
     }
 }

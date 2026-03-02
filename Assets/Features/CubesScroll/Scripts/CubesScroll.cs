@@ -12,41 +12,43 @@ using Zenject;
 public class CubesScroll : IDisposable
 {
     private ScrollRect _scrollRect;    
-    private IReadOnlyReactiveCollection<CubeView> _collection;
+    private IReadOnlyReactiveCollection<CubeView> _scrollCollection;
+    private IReactiveCollection<CubeView> _dndCollection;
     private IDictionary<int, string> _cubeTypes;
     private IInstantiator _instantiator;
-    private CubeView.Pool _pool;
-    private Canvas _canvas;
     private UIMainWindow _window;    
 
     private Dictionary<string, ICommand<CubeView>> _commandsDict = new Dictionary<string, ICommand<CubeView>>();
     private CompositeDisposable _compositeDisposable = new CompositeDisposable();
 
     public CubesScroll(
-        [Inject(Id = CubesContainerType.Scroll)] IReactiveCollection<CubeView> collection,
+        [Inject(Id = CubesContainerType.Scroll)] IReactiveCollection<CubeView> scrollCollection,
+        [Inject(Id = CubesContainerType.DragAndDrop)] IReactiveCollection<CubeView> dndCollection,
         IDictionary<int, string> cubeTypes,
         UIMainWindow window,
-        CubeView.Pool pool,
-        Canvas canvas,
         IInstantiator instantiator)
     {
+        _dndCollection = dndCollection;
         _window = window;
-        _pool = pool;
         _cubeTypes = cubeTypes;
         _scrollRect = window.Scroll;
-        _collection = collection;
-
-        _collection
-            .ObserveAdd()            
-            .Subscribe(OnObjectAdded);
-        _canvas = canvas;
+        _scrollCollection = scrollCollection;
         _instantiator = instantiator;
+
+        _scrollCollection
+            .ObserveAdd()
+            .Subscribe(OnObjectAdded)
+            .AddTo(_compositeDisposable);        
+    }
+
+    public void Dispose()
+    {
+        _compositeDisposable.Dispose();
     }
 
     private void OnObjectAdded(CollectionAddEvent<CubeView> collectionAddEvent)
     {
-        var view = collectionAddEvent.Value;
-        
+        var view = collectionAddEvent.Value;        
 
         if (_cubeTypes.TryGetValue(view.GetInstanceID(), out var color))
         {
@@ -60,7 +62,7 @@ public class CubesScroll : IDisposable
             view
                 .OnBeginDragAsObservable()
                 .Select(pointerData => (pointerData, color))
-                .TakeUntil(_collection.ObserveRemove().Where(removedItem => view == removedItem.Value))
+                .TakeUntil(_scrollCollection.ObserveRemove().Where(removedItem => view == removedItem.Value))
                 .Subscribe(OnDragBegin)
                 .AddTo(_compositeDisposable);
 
@@ -92,30 +94,13 @@ public class CubesScroll : IDisposable
 
                 ExecuteEvents.Execute(currentDraggable.gameObject, data.pointerData, ExecuteEvents.beginDragHandler);
 
-                currentDraggable
-                    .OnDragAsObservable()
-                    .TakeUntil(currentDraggable.OnEndDragAsObservable())
-                    .Subscribe(pointerData =>
-                    {
-                        currentDraggable.RectTransform.anchoredPosition += pointerData.delta / _canvas.scaleFactor;
-                    });
-
-                currentDraggable
-                    .OnEndDragAsObservable()                                                
-                    .Take(1)
-                    .Subscribe(pointerData => 
-                    {
-                        if(pointerData.pointerEnter == null || pointerData.pointerEnter.GetComponent<IDropHandler>() == null)
-                        {
-                            _pool.Despawn(currentDraggable);
-                        }                        
-                    });
+                if(!_dndCollection.Contains(currentDraggable))
+                {
+                    _dndCollection.Add(currentDraggable);
+                }                
             }
         }
     }
 
-    public void Dispose()
-    {
-        _compositeDisposable.Dispose();
-    }
+    
 }

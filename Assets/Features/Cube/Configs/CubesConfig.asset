@@ -12,6 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 711ef809975fee84aa099784199d9440, type: 3}
   m_Name: CubesConfig
   m_EditorClassIdentifier: 
+  _cubesToShow:
+  - Red
+  - Blue
+  - Green
+  - Vinous
+  - Orange
+  - Yellow
+  - DarkBlue
+  - Purple
+  - Gray
+  - Brown
+  - Black
+  - Violet
+  - Pink
+  - Cyan
+  - LightGreen
+  - Lavender
+  - LightBlue
+  - DarkBrown
+  - LightYellow
+  - LightPurple
   _cubeModels:
   - Name: Red
     Sprite: {fileID: -89146434, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
@@ -21,4 +42,55 @@ MonoBehaviour:
     Color: {r: 1, g: 1, b: 1, a: 1}
   - Name: Green
     Sprite: {fileID: -2005686230, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Vinous
+    Sprite: {fileID: -1923991493, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Orange
+    Sprite: {fileID: -424400454, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Yellow
+    Sprite: {fileID: -1658639911, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: DarkBlue
+    Sprite: {fileID: 23618619, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Purple
+    Sprite: {fileID: -118642801, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Gray
+    Sprite: {fileID: -1069601205, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Brown
+    Sprite: {fileID: -453252025, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Black
+    Sprite: {fileID: -1026264050, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Violet
+    Sprite: {fileID: 55288068, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Pink
+    Sprite: {fileID: -1712158588, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Cyan
+    Sprite: {fileID: 443846113, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: LightGreen
+    Sprite: {fileID: -1379215823, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: Lavender
+    Sprite: {fileID: -562062723, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: LightBlue
+    Sprite: {fileID: 2050464808, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: DarkBrown
+    Sprite: {fileID: 1351015443, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: LightYellow
+    Sprite: {fileID: -1782386518, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
+    Color: {r: 1, g: 1, b: 1, a: 1}
+  - Name: LightPurple
+    Sprite: {fileID: 994845305, guid: af6c84cdecf58924b9e2d44836b641df, type: 3}
     Color: {r: 1, g: 1, b: 1, a: 1}

@@ -21,7 +21,31 @@ public class ApplicationInstaller : MonoInstaller
             .Bind<IReactiveCollection<CubeView>>()
             .WithId(CubesContainerType.Scroll)
             .To<ReactiveCollection<CubeView>>()            
-            .AsSingle();
+            .AsCached();
+
+        Container
+            .Bind<IReactiveCollection<CubeView>>()
+            .WithId(CubesContainerType.Tower)
+            .To<ReactiveCollection<CubeView>>()            
+            .AsCached();
+
+        Container
+            .Bind<ISubject<CubeView>>()
+            .WithId(CubeDespawnType.Default)
+            .To<Subject<CubeView>>()
+            .AsCached();
+
+        Container
+            .Bind<ISubject<CubeView>>()
+            .WithId(CubeDespawnType.ByHole)
+            .To<Subject<CubeView>>()
+            .AsCached();
+
+        Container
+            .Bind<IReactiveCollection<CubeView>>()
+            .WithId(CubesContainerType.DragAndDrop)
+            .To<ReactiveCollection<CubeView>>()            
+            .AsCached();
 
         Container
             .Bind<IDictionary<int, string>>()
@@ -30,9 +54,14 @@ public class ApplicationInstaller : MonoInstaller
 
         Container
             .BindMemoryPool<CubeView, CubeView.Pool>()
-            .WithInitialSize(5)
+            .WithInitialSize(30)
             .FromComponentInNewPrefab(_view)
             .AsSingle();
+
+        Container
+            .Bind<DragAndDropHandler>()
+            .AsSingle()
+            .NonLazy();
 
         Container
             .Bind<CubesScroll>()
@@ -43,6 +72,12 @@ public class ApplicationInstaller : MonoInstaller
             .Bind<Hole>()
             .AsSingle()
             .NonLazy();
+
+        Container
+            .Bind<Tower<CubeView>>()
+            .AsSingle()
+            .NonLazy();
+        
 
         Container
             .Bind<ApplicationLauncher>()
