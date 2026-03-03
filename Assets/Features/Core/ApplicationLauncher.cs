@@ -1,38 +1,45 @@
 using Assets.Features.Cube.Scripts;
-using Assets.Features.Localization.Scripts;
-using Assets.Features.Localization.Scripts.Interfaces;
+using Assets.Features.Tower.Scripts;
+using Assets.Features.Tower.Scripts.TowerPlaceCheckHandler.Realization;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UniRx;
-using UniRx.Triggers;
-using UnityEngine;
 using Zenject;
 
-public class ApplicationLauncher : IDisposable
+namespace Assets.Features.Core
 {
-    private CompositeDisposable _disposables = new CompositeDisposable();
-
-    public ApplicationLauncher(
-        IInstantiator instantiator,
-        CubeView.Pool cubesPool,
-        IDictionary<int, string> cubeTypes,
-        [Inject(Id = CubesContainerType.DragAndDrop)] IReactiveCollection<CubeView> collection
-        )
+    public class ApplicationLauncher : IDisposable
     {
-        instantiator.Instantiate<FillCubeScrollCommand>().Do();
+        private CompositeDisposable _disposables = new CompositeDisposable();
 
-        cubesPool.CubeDespawned
-            .Subscribe(cubeView => 
-            {
-                cubeTypes.Remove(cubeView.GetInstanceID());
-                collection.Remove(cubeView);
-            })
-            .AddTo(_disposables);
-    }
+        public ApplicationLauncher(
+            OnTowerDropHandler<CubeView, CubeViewProtocol> onTowerDropHandler,
+            IInstantiator instantiator,
+            IReactiveMemoryPool<CubeViewProtocol, CubeView> cubesPool,
+            IDictionary<int, string> cubeTypes,
+            [Inject(Id = UIElementsContainerType.DragAndDrop)]
+        IReactiveCollection<UIElement> collection
+            )
+        {
+            var command = instantiator.Instantiate<FillCubeScrollCommand>();
+            command.Do();
+            command.Dispose();
 
-    public void Dispose()
-    {
-        _disposables.Dispose();
+            var checker = instantiator.Instantiate<BordersCheck>();
+            onTowerDropHandler.SetChecker(checker);
+
+            cubesPool.ItemDespawned
+                .Subscribe(cubeView =>
+                {
+                    cubeTypes.Remove(cubeView.GetInstanceID());
+                    collection.Remove(cubeView);
+                })
+                .AddTo(_disposables);
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
+        }
     }
 }

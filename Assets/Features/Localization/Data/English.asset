@@ -19,3 +19,5 @@ MonoBehaviour:
     Text: The cube was thrown away
   - Key: OnTowerAdded
     Text: The cube was added to the tower
+  - Key: OnMaxHeightReached
+    Text: Too much cubes

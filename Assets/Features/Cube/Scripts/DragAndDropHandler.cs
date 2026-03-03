@@ -4,11 +4,9 @@ using DG.Tweening;
 using System;
 using System.Linq;
 using UniRx;
-using UniRx.Diagnostics;
 using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using Zenject;
 
 namespace Assets.Features.Cube.Scripts
@@ -17,32 +15,45 @@ namespace Assets.Features.Cube.Scripts
     {
         private ILocalizationManager _localizationManager;
         private UniRx.Diagnostics.Logger _logger;
-        private IReactiveCollection<CubeView> _collection;
-        private CubeView.Pool _pool;
+        private IReactiveCollection<UIElement> _collection;
+        private IReactiveMemoryPool<CubeViewProtocol, CubeView> _pool;
         private Canvas _canvas;
 
         private CompositeDisposable _compositeDisposable = new CompositeDisposable();
 
         public DragAndDropHandler(
-            [Inject(Id = CubesContainerType.DragAndDrop)] IReactiveCollection<CubeView> collection,
+            [Inject(Id = UIElementsContainerType.DragAndDrop)]
+            IReactiveCollection<UIElement> collection,
             Canvas canvas,
-            CubeView.Pool pool,
+            IReactiveMemoryPool<CubeViewProtocol, CubeView> pool,
             ILocalizationManager localizationManager,
             UniRx.Diagnostics.Logger logger)
         {
             _collection = collection;
             _canvas = canvas;
             _pool = pool;
+            _localizationManager = localizationManager;
+            _logger = logger;
 
             _collection
                 .ObserveAdd()
                 .Subscribe(OnAdd)
-                .AddTo(_compositeDisposable);
-            _localizationManager = localizationManager;
-            _logger = logger;
+                .AddTo(_compositeDisposable);            
         }
 
-        private void OnAdd(CollectionAddEvent<CubeView> collectionAddEvent)
+        public void Dispose()
+        {
+            _localizationManager = null;
+            _logger = null;
+            _pool = null;
+            _canvas = null;
+            _collection = null;
+
+            _compositeDisposable.Dispose();
+            _compositeDisposable = null;
+        }
+
+        private void OnAdd(CollectionAddEvent<UIElement> collectionAddEvent)
         {
             collectionAddEvent.Value
                 .OnDragAsObservable()
@@ -71,16 +82,6 @@ namespace Assets.Features.Cube.Scripts
                     }
                 })
                 .AddTo(_compositeDisposable);
-        }
-        
-        public void Dispose()
-        {
-            _pool = null;
-            _canvas = null;
-            _collection = null;
-
-            _compositeDisposable.Dispose();
-            _compositeDisposable = null;
-        }
+        }               
     }
 }

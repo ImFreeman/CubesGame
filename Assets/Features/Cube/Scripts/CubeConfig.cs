@@ -2,47 +2,49 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "CubesConfig", menuName = "ScriptableObjects/CubesConfig", order = 1)]
-public class CubeConfig : ScriptableObject
+namespace Assets.Features.Cube.Scripts
 {
-    public string[] CubesToShow => _cubesToShow;
-
-    [SerializeField] private string[] _cubesToShow;
-    [SerializeField] private CubeModel[] _cubeModels;
-    
-    [NonSerialized] private bool _inited;
-
-    private Dictionary<string, CubeModel> _cubeModelsDict = new Dictionary<string, CubeModel>();
-
-    public CubeModel? Get(string name)
+    [CreateAssetMenu(fileName = "CubesConfig", menuName = "ScriptableObjects/CubesConfig", order = 1)]
+    public class CubeConfig : ScriptableObject
     {
-        if(!_inited)
+        public string[] CubesToShow => _cubesToShow;
+
+        [SerializeField] private string[] _cubesToShow;
+        [SerializeField] private CubeModel[] _cubeModels;
+
+        [NonSerialized] private bool _inited;
+
+        private Dictionary<string, CubeModel> _cubeModelsDict = new Dictionary<string, CubeModel>();
+
+        public CubeModel? Get(string name)
         {
-            Init();
+            if (!_inited)
+            {
+                Init();
+            }
+
+            if (_cubeModelsDict.TryGetValue(name, out CubeModel cubeModel))
+            {
+                return cubeModel;
+            }
+
+            return null;
         }
 
-        if(_cubeModelsDict.TryGetValue(name, out CubeModel cubeModel))
+        private void Init()
         {
-            return cubeModel;
+            for (int i = 0; i < _cubeModels.Length; i++)
+            {
+                _cubeModelsDict.TryAdd(_cubeModels[i].Name, _cubeModels[i]);
+            }
+            _inited = true;
         }
-
-        return null;
     }
 
-    private void Init()
+    [Serializable]
+    public struct CubeModel
     {
-        for (int i = 0; i < _cubeModels.Length; i++)
-        {
-            _cubeModelsDict.TryAdd(_cubeModels[i].Name, _cubeModels[i]);
-        }
-        _inited = true;
+        public string Name;
+        public Sprite Sprite;
     }
-}
-
-[Serializable]
-public struct CubeModel
-{
-    public string Name;
-    public Sprite Sprite;
-    public Color Color;
 }

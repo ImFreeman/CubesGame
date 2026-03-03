@@ -1,23 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UIMainWindow : MonoBehaviour
+namespace Assets.Features.UI.Scripts
 {
-    [SerializeField] private Image _hole;
-    [SerializeField] private RectTransform _rectTransform;
-    [SerializeField] private ScrollRect _scroll;
-    [SerializeField] private Image _tower;
-    [SerializeField] private RectTransform _towerCubeContainer;
-    [SerializeField] private TMP_Text _logTextComponent;
-    public TMP_Text LogTextComponent => _logTextComponent;
-    public Image Tower => _tower;
-    public Image Hole => _hole;
-    public RectTransform RectTransform => _rectTransform;
-    public ScrollRect Scroll => _scroll;
-    public RectTransform TowerCubeContainer => _towerCubeContainer;
+    public class UIMainWindow : MonoBehaviour
+    {
+        [SerializeField] private Image _hole;
+        [SerializeField] private RectTransform _rectTransform;
+        [SerializeField] private ScrollRect _scroll;
+        [SerializeField] private Image _tower;
+        [SerializeField] private RectTransform _towerCubeContainer;
+        [SerializeField] private TMP_Text _logTextComponent;
+        public TMP_Text LogTextComponent => _logTextComponent;
+        public Image TowerDropPlace => _tower;
+        public Image HoleDropPlace => _hole;
+        public RectTransform RectTransform => _rectTransform;
+        public ScrollRect Scroll => _scroll;
+        public RectTransform TowerCubeContainer => _towerCubeContainer;
 
+    }
 }

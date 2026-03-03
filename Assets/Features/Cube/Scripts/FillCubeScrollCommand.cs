@@ -1,9 +1,6 @@
 ﻿using Assets.Features.Core.Command;
-using System;
+using Assets.Features.Core.Command.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UniRx;
 using Zenject;
 
@@ -12,15 +9,15 @@ namespace Assets.Features.Cube.Scripts
     public class FillCubeScrollCommand : ICommand<CommandReturnValue>
     {
         private CubeConfig _cubeConfig;
-        private IReactiveCollection<CubeView> _scrollCollection;
-        private CubeView.Pool _pool;
+        private IReactiveCollection<UIElement> _scrollCollection;
+        private IReactiveMemoryPool<CubeViewProtocol, CubeView> _pool;
         private IDictionary<int, string> _cubeTypes;
 
         public FillCubeScrollCommand(
             CubeConfig cubeConfig,
-            CubeView.Pool pool,
-            [Inject(Id = CubesContainerType.Scroll)]
-            IReactiveCollection<CubeView> collection,
+            IReactiveMemoryPool<CubeViewProtocol, CubeView> pool,
+            [Inject(Id = UIElementsContainerType.Scroll)]
+            IReactiveCollection<UIElement> collection,
             IDictionary<int, string> cubeTypes)
         {
             _scrollCollection = collection;
@@ -34,6 +31,7 @@ namespace Assets.Features.Cube.Scripts
             _cubeConfig = null;
             _scrollCollection = null;
             _pool = null;
+            _cubeTypes = null;
         }
 
         public (CommandStatus, CommandReturnValue) Do()
@@ -43,7 +41,7 @@ namespace Assets.Features.Cube.Scripts
                 var model = _cubeConfig.Get(color);
                 if (model != null)
                 {
-                    var view = _pool.Spawn(new CubeViewProtocol(model.Value.Sprite, model.Value.Color));
+                    var view = _pool.Spawn(new CubeViewProtocol(model.Value.Sprite));
                     if (!_cubeTypes.TryAdd(view.GetInstanceID(), color))
                     {
                         return (CommandStatus.Failed, CommandReturnValue.Empty);

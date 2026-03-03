@@ -10,7 +10,6 @@ namespace Assets.Features.Localization.Scripts.Realizations
         private IDictionary<string, string> _localizeData = new Dictionary<string, string>();
         public LocalizationManager(LocalizationConfig config)
         {
-            //TODO: adressables
             foreach (var item in config.Data)
             {
                 _localizeData.TryAdd(item.Key, item.Text);

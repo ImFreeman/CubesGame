@@ -1,6 +1,6 @@
 ﻿namespace Assets.Features.Cube.Scripts
 {
-    public enum CubesContainerType
+    public enum UIElementsContainerType
     {
         DragAndDrop = 0,
         Scroll = 1,
