@@ -36,6 +36,11 @@ namespace Assets.Features.Cube.Scripts.Installers
                 .AsSingle();
 
             Container
+                .Bind<IDictionary<int, float>>()
+                .To<Dictionary<int, float>>()
+                .AsSingle();
+
+            Container
                 .BindMemoryPool<CubeView, CubeView.Pool>()
                 .WithInitialSize(30)
                 .FromComponentInNewPrefab(_view)

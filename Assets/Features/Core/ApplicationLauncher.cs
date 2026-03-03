@@ -1,4 +1,5 @@
 using Assets.Features.Cube.Scripts;
+using Assets.Features.SaveSystem.Scripts;
 using Assets.Features.Tower.Scripts;
 using Assets.Features.Tower.Scripts.TowerPlaceCheckHandler.Realization;
 using System;
@@ -18,13 +19,9 @@ namespace Assets.Features.Core
             IReactiveMemoryPool<CubeViewProtocol, CubeView> cubesPool,
             IDictionary<int, string> cubeTypes,
             [Inject(Id = UIElementsContainerType.DragAndDrop)]
-        IReactiveCollection<UIElement> collection
+            IReactiveCollection<UIElement> collection
             )
-        {
-            var command = instantiator.Instantiate<FillCubeScrollCommand>();
-            command.Do();
-            command.Dispose();
-
+        {            
             var checker = instantiator.Instantiate<BordersCheck>();
             onTowerDropHandler.SetChecker(checker);
 
@@ -35,6 +32,28 @@ namespace Assets.Features.Core
                     collection.Remove(cubeView);
                 })
                 .AddTo(_disposables);
+
+            Observable
+                .OnceApplicationQuit()
+                .Subscribe(_ => 
+                {
+                    var command = instantiator.Instantiate<SaveGameCommand>();
+                    command.Do();
+                    command.Dispose();
+                });
+
+            var fillScrollCommand = instantiator.Instantiate<FillCubeScrollCommand>();
+            fillScrollCommand.Do();
+            fillScrollCommand.Dispose();
+
+            var loadGameCommand = instantiator.Instantiate<LoadGameCommand>();
+            Observable
+                .TimerFrame(10)
+                .Subscribe(_ => 
+                {
+                    loadGameCommand.Do();
+                    loadGameCommand.Dispose();
+                });            
         }
 
         public void Dispose()

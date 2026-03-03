@@ -18,24 +18,26 @@ namespace Assets.Features.Tower.Scripts
         private IReactiveCollection<UIElement> _towerCollection;
         private ILocalizationManager _localizationManager;
         private UniRx.Diagnostics.Logger _logger;
+        private IDictionary<int, float> _offsetData;
 
         private CompositeDisposable _compositeDisposable = new CompositeDisposable();
         private RectTransform _elementsContainer;
 
-        private Vector2 _nextPos;
+        private Vector2 _prevPos;
 
         private List<Tween> _tweens = new List<Tween>();
         private List<Sequence> _sequences = new List<Sequence>();
         private System.Random _random = new System.Random();
-
+        
         public TowerCollectionHandler(
             UniRx.Diagnostics.Logger logger,
             ILocalizationManager localizationManager,
             [Inject(Id = UIElementsContainerType.Tower)]
             IReactiveCollection<UIElement> towerCollection,
-            UIMainWindow window)
+            UIMainWindow window,
+            IDictionary<int, float> offsetData)
         {
-            _logger = logger;            
+            _logger = logger;
             _localizationManager = localizationManager;
             _towerCollection = towerCollection;
             _elementsContainer = window.TowerCubeContainer;
@@ -49,6 +51,7 @@ namespace Assets.Features.Tower.Scripts
                 .ObserveRemove()
                 .Subscribe(OnItemRemoved)
                 .AddTo(_compositeDisposable);
+            _offsetData = offsetData;
         }
 
         public void Dispose()
@@ -86,7 +89,7 @@ namespace Assets.Features.Tower.Scripts
                     .DOAnchorPos(
                         new Vector2(
                             towerItem.RectTransform.anchoredPosition.x,
-                            towerItem.RectTransform.anchoredPosition.y - _towerCollection[i].RectTransform.rect.height
+                            towerItem.RectTransform.anchoredPosition.y - itemRemoveEvent.Value.RectTransform.rect.height
                             ),
                         0.5f
                     )
@@ -107,46 +110,69 @@ namespace Assets.Features.Tower.Scripts
 
             sequence.OnComplete(() => { _sequences.Remove(sequence); });
             _sequences.Add(sequence);
+            _offsetData.Remove(itemRemoveEvent.Value.GetInstanceID());
 
-            if(_towerCollection.Count != 0)
+            if (_towerCollection.Count != 0)
             {
                 var lastObj = _towerCollection[_towerCollection.Count - 1].RectTransform;
-                _nextPos = new Vector2(
-                           Mathf.Clamp(
-                               lastObj.anchoredPosition.x,
-                               lastObj.rect.width * lastObj.pivot.x,
-                               _elementsContainer.rect.width - lastObj.rect.width * (1 - lastObj.pivot.x)
-                               ),
-                           _elementsContainer.rect.height * TowerConsts.Ground + lastObj.rect.height * lastObj.pivot.y
-                           );
-                CalculateNextPos();
-            }            
+                _prevPos.y -= itemRemoveEvent.Value.RectTransform.rect.height;
+            }
         }
 
         private void OnItemAdded(CollectionAddEvent<UIElement> itemAddEvent)
         {
-            var rectTransform = itemAddEvent.Value.GetComponent<RectTransform>();
-            rectTransform.SetParent(_elementsContainer);
-            if (_towerCollection.Count == 1)
-            {
-                _nextPos = new Vector2(
-                            Mathf.Clamp(
+            var rectTransform = itemAddEvent.Value.RectTransform;            
+
+            float posX;
+            float posY;
+
+            if(itemAddEvent.Index == 0)
+            {                
+                if(_offsetData.TryGetValue(itemAddEvent.Value.GetInstanceID(), out var firstOffset))
+                {
+                    posX = Mathf.Clamp(
+                                _elementsContainer.rect.width * firstOffset,
+                                rectTransform.rect.width * rectTransform.pivot.x,
+                                _elementsContainer.rect.width - rectTransform.rect.width * (1 - rectTransform.pivot.x)
+                                );
+                }
+                else
+                {
+                    posX = Mathf.Clamp(
                                 rectTransform.anchoredPosition.x,
                                 rectTransform.rect.width * rectTransform.pivot.x,
                                 _elementsContainer.rect.width - rectTransform.rect.width * (1 - rectTransform.pivot.x)
-                                ),
-                            _elementsContainer.rect.height * TowerConsts.Ground + rectTransform.rect.height * rectTransform.pivot.y
-                            );                
+                                );
+
+                    _offsetData.TryAdd(itemAddEvent.Value.GetInstanceID(), rectTransform.anchoredPosition.x / _elementsContainer.rect.width);
+                }
+                posY = _elementsContainer.rect.height * TowerConsts.Ground + rectTransform.rect.height * rectTransform.pivot.y;                
+            }
+            else
+            {
+                float offsetCoef;
+                if (!_offsetData.TryGetValue(itemAddEvent.Value.GetInstanceID(), out offsetCoef))
+                {
+                    offsetCoef = (float)_random.NextDouble();
+                    _offsetData.Add(itemAddEvent.Value.GetInstanceID(), offsetCoef);
+                }
+
+                var lastCube = _towerCollection[_towerCollection.Count - 1];
+                var lastCubeRect = lastCube.RectTransform;
+
+                float offset = offsetCoef * lastCubeRect.rect.width;
+                posX = _prevPos.x - lastCubeRect.rect.width * 0.5f + offset;
+                posY = _elementsContainer.rect.height * TowerConsts.Ground + lastCubeRect.rect.height * (_towerCollection.Count - 1) + lastCubeRect.rect.height * lastCubeRect.pivot.y;
             }
 
+            _prevPos = new Vector2(posX, posY);
+
             var tween = rectTransform
-                    .DOAnchorPos(_nextPos,0.5f)
+                    .DOAnchorPos(_prevPos, 0.5f)
                     .SetEase(Ease.InBack);
 
             tween.OnComplete(() => { _tweens.Remove(tween); });
             _tweens.Add(tween);
-
-            CalculateNextPos();
 
             itemAddEvent.Value.Graphics.raycastTarget = true;
 
@@ -160,22 +186,6 @@ namespace Assets.Features.Tower.Scripts
                 });
 
             _logger.Log(_localizationManager.Localize(LocalizationConsts.OnTowerAdded));
-        }
-
-        private void CalculateNextPos()
-        {
-            var lastCube = _towerCollection[_towerCollection.Count - 1];
-            var lastCubeRect = lastCube.RectTransform;
-            float offset = (float)_random.NextDouble() * lastCubeRect.rect.width;
-            var newX = _nextPos.x - lastCubeRect.rect.width * 0.5f + offset;
-            var newY = _elementsContainer.rect.height * TowerConsts.Ground + lastCubeRect.rect.height * _towerCollection.Count + lastCubeRect.rect.height * lastCubeRect.pivot.y;
-            _nextPos = new Vector2(
-                Mathf.Clamp(
-                    newX,
-                    lastCubeRect.rect.width * lastCubeRect.pivot.x,
-                    _elementsContainer.rect.width - lastCubeRect.rect.width * (1 - lastCubeRect.pivot.x)
-                    ),
-                newY);
         }
     }
 }
