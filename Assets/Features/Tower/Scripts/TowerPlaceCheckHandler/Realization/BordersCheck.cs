@@ -52,7 +52,7 @@ namespace Assets.Features.Tower.Scripts.TowerPlaceCheckHandler.Realization
                 yEdge += element.RectTransform.rect.height;
             }
 
-            if (yEdge + item.RectTransform.rect.height > _container.rect.height)
+            if (yEdge > _container.rect.height)
             {
                 return (false, _localizationManager.Localize(LocalizationConsts.OnMaxHeightReached));
             }

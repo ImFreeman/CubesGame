@@ -161,7 +161,11 @@ namespace Assets.Features.Tower.Scripts
                 var lastCubeRect = lastCube.RectTransform;
 
                 float offset = offsetCoef * lastCubeRect.rect.width;
-                posX = _prevPos.x - lastCubeRect.rect.width * 0.5f + offset;
+                posX = Mathf.Clamp(
+                    _prevPos.x - lastCubeRect.rect.width * 0.5f + offset,
+                    rectTransform.rect.width * rectTransform.pivot.x,
+                    _elementsContainer.rect.width - rectTransform.rect.width * (1 - rectTransform.pivot.x)
+                    );
                 posY = _elementsContainer.rect.height * TowerConsts.Ground + lastCubeRect.rect.height * (_towerCollection.Count - 1) + lastCubeRect.rect.height * lastCubeRect.pivot.y;
             }
 

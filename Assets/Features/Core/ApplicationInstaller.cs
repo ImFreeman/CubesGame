@@ -16,6 +16,11 @@ namespace Assets.Features.Core
                 .WithArguments("MainLogger");
 
             Container
+                .Bind<LogHandler>()
+                .AsSingle()
+                .NonLazy();
+
+            Container
                 .Bind<DragAndDropHandler>()
                 .AsSingle()
                 .NonLazy();
@@ -38,12 +43,7 @@ namespace Assets.Features.Core
             Container
                 .Bind<OnTowerDropHandler<CubeView, CubeViewProtocol>>()
                 .AsSingle()
-                .NonLazy();
-
-            Container
-                .Bind<LogHandler>()
-                .AsSingle()
-                .NonLazy();
+                .NonLazy();            
 
             Container
                 .Bind<ApplicationLauncher>()

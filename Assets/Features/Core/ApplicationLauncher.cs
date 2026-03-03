@@ -48,7 +48,7 @@ namespace Assets.Features.Core
 
             var loadGameCommand = instantiator.Instantiate<LoadGameCommand>();
             Observable
-                .TimerFrame(10)
+                .Timer(TimeSpan.FromSeconds(0.1f))
                 .Subscribe(_ => 
                 {
                     loadGameCommand.Do();
