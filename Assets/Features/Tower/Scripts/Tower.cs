@@ -1,4 +1,6 @@
 using Assets.Features.Cube.Scripts;
+using Assets.Features.Localization.Scripts;
+using Assets.Features.Localization.Scripts.Interfaces;
 using DG.Tweening;
 using System;
 using UniRx;
@@ -15,6 +17,7 @@ public class Tower<T> : IDisposable where T : CubeView
     private IReactiveCollection<CubeView> _towerCollection;
     private Image _towerBackground;
     private CubeView.Pool _pool;
+    private ILocalizationManager _localizationManager;
 
     private Vector2 _nextPos;
     private float _width;
@@ -22,12 +25,15 @@ public class Tower<T> : IDisposable where T : CubeView
     private System.Random _random = new System.Random();
     private Canvas _canvas;
     private RectTransform _cubesContainer;
+    private UniRx.Diagnostics.Logger _logger;
 
     public Tower(
         CubeView.Pool pool,
         UIMainWindow window,
         [Inject(Id = CubesContainerType.Tower)] IReactiveCollection<CubeView> collection,
-        Canvas canvas)
+        Canvas canvas,
+        ILocalizationManager localizationManager,
+        UniRx.Diagnostics.Logger logger)
     {
         _cubesContainer = window.TowerCubeContainer;
         _pool = pool;
@@ -54,6 +60,8 @@ public class Tower<T> : IDisposable where T : CubeView
             .Subscribe(OnDrop)
             .AddTo(_compositeDisposable);
         _canvas = canvas;
+        _localizationManager = localizationManager;
+        _logger = logger;
     }
 
     private void OnItemRemoved(CollectionRemoveEvent<CubeView> itemRemoveEvent)
@@ -88,7 +96,6 @@ public class Tower<T> : IDisposable where T : CubeView
                     0.5f
                 )
                 .SetEase(Ease.InBack);
-                //.OnComplete(() => { rectTransform.SetParent(_cubesContainer); });
 
             CalculateNextPos();
         }
@@ -108,28 +115,37 @@ public class Tower<T> : IDisposable where T : CubeView
                     0.5f
                 )
                 .SetEase(Ease.InBack);
-                //.OnComplete(() => { rectTransform.SetParent(_cubesContainer); });
             CalculateNextPos();
         }
 
-        itemAddEvent.Value.GetComponent<Image>().raycastTarget = true;
+        itemAddEvent.Value.GetComponent<Graphic>().raycastTarget = true;
 
         itemAddEvent.Value
             .OnBeginDragAsObservable()
             .Take(1)
             .Subscribe(_ =>
             {
+                itemAddEvent.Value.GetComponent<Image>().raycastTarget = false;
                 _towerCollection.Remove(itemAddEvent.Value);
             });
+
+        _logger.Log(_localizationManager.Localize(LocalizationConsts.OnTowerAdded));
     }    
 
     private void DropCube(CubeView cube, bool removeFromCollection = true)
     {
-        _pool.Despawn(cube);
-        if(removeFromCollection)
-        {
-            _towerCollection.Remove(cube);
-        }        
+        cube.GetComponent<Graphic>().raycastTarget = false;
+        cube.RectTransform
+            .DOScale(Vector3.zero, 0.5f)
+            .SetEase(Ease.InElastic)
+            .OnComplete(() => 
+            {
+                _pool.Despawn(cube);
+                if (removeFromCollection)
+                {
+                    _towerCollection.Remove(cube);
+                }
+            });            
     }
 
     private void CalculateNextPos()
@@ -189,7 +205,7 @@ public class Tower<T> : IDisposable where T : CubeView
                     DropCube(view, false);
                     return;
                 }
-
+                
                 _towerCollection.Add(view);
             }
         }        

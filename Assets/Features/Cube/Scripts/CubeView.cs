@@ -6,9 +6,6 @@ using Zenject;
 
 public class CubeView : UIBehaviour
 {
-    public ISubject<CubeView> Despawned { get; private set; } = new Subject<CubeView>();
-    public ISubject<CubeView> Spawned { get; private set; } = new Subject<CubeView>();
-
     public RectTransform RectTransform => _rectTransform;
 
     [SerializeField] private Image _image;

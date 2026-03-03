@@ -1,4 +1,6 @@
 using Assets.Features.Cube.Scripts;
+using Assets.Features.Localization.Scripts;
+using Assets.Features.Localization.Scripts.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
